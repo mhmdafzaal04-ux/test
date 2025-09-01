@@ -1,10 +1,129 @@
-letsencrypt/
-traefik/docker-compose.yaml
-nginx.conf
-nginx.conf.bak
-huly.conf
+# Huly Self-Hosted - Security-focused .gitignore
+# Protects sensitive files from accidental commits
+
+# =============================================================================
+# 🚨 CRITICAL SECURITY FILES - NEVER COMMIT THESE!
+# =============================================================================
+
+# Environment files with real secrets
+.env
+.env.local
+.env.production
+*.env
+
+# Security files
+*.secret
+*.key
+*.pem
+*.crt
+*.p12
+*.pfx
+
+# Configuration files with credentials
+*config*.conf
 huly_v7.conf
-.huly.secret
-.cr.secret
-.rp.secret
-.idea
+huly_production.conf
+
+# Security values
+SECURITY-VALUES.txt
+security-values.*
+secrets.*
+
+# =============================================================================
+# 📁 DATA DIRECTORIES
+# =============================================================================
+
+# Persistent data volumes
+data/
+backup/
+backups/
+volumes/
+storage/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# =============================================================================
+# 🐳 DOCKER FILES
+# =============================================================================
+
+# Docker volumes and data
+.volumes/
+docker-data/
+
+# Docker override files (may contain secrets)
+docker-compose.override.yml
+docker-compose.local.yml
+
+# =============================================================================
+# 📝 LOG FILES
+# =============================================================================
+
+# Application logs
+logs/
+*.log
+*.log.*
+
+# =============================================================================
+# 🔧 DEVELOPMENT FILES
+# =============================================================================
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+.tmp/
+
+# =============================================================================
+# 📦 NODE.JS (if using)
+# =============================================================================
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =============================================================================
+# 🗃️ BACKUP FILES
+# =============================================================================
+
+# Backup files
+*.bak
+*.backup
+*.old
+*~
+
+# =============================================================================
+# 🔐 SSL CERTIFICATES
+# =============================================================================
+
+# SSL certificate files
+ssl/
+certs/
+certificates/
+*.crt
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Let's Encrypt
+certbot/

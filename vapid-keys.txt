@@ -1,0 +1,21 @@
+VAPID Keys for Huly Push Notifications
+=====================================
+
+Public Key:
+BLH4UvnfmZr1huRSBzeR4jC0UMVSwYPeJ-yBjzIaMWJCntMccbVdIeDGEnj4ChxUnkgQD4dnphvEO4c6w-QMHUM
+
+Private Key:
+l1v9zSEO9Beps1gjbE4ShhJA8n0QfOO1M7sEp2OZvWU
+
+=====================================
+
+Usage Instructions:
+1. Add these keys to your compose.yml environment variables
+2. For SES service (if using push notifications):
+   - PUSH_PUBLIC_KEY=BLH4UvnfmZr1huRSBzeR4jC0UMVSwYPeJ-yBjzIaMWJCntMccbVdIeDGEnj4ChxUnkgQD4dnphvEO4c6w-QMHUM
+   - PUSH_PRIVATE_KEY=l1v9zSEO9Beps1gjbE4ShhJA8n0QfOO1M7sEp2OZvWU
+
+3. For front service (client access):
+   - PUSH_PUBLIC_KEY=BLH4UvnfmZr1huRSBzeR4jC0UMVSwYPeJ-yBjzIaMWJCntMccbVdIeDGEnj4ChxUnkgQD4dnphvEO4c6w-QMHUM
+
+Keep these keys secure and do not share the private key publicly!
