@@ -93,12 +93,9 @@ services:
 
   rekoni:
     image: hardcoreeng/rekoni-service:${HULY_VERSION:-s0.7.204}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.rekoni.rule=PathPrefix(`/_rekoni`)"
-      - "traefik.http.services.rekoni.loadbalancer.server.port=4004"
     environment:
       - SECRET=${SECRET}
+      - SERVICE_FQDN_REKONI_4004=/_rekoni
     deploy:
       resources:
         limits:
@@ -107,22 +104,16 @@ services:
 
   stats:
     image: hardcoreeng/stats:${HULY_VERSION:-s0.7.204}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.stats.rule=PathPrefix(`/_stats`)"
-      - "traefik.http.services.stats.loadbalancer.server.port=4900"
     environment:
       - PORT=4900
       - SERVER_SECRET=${SECRET}
+      - SERVICE_FQDN_STATS_4900=/_stats
     restart: unless-stopped
 
   account:
     image: hardcoreeng/account:${HULY_VERSION:-s0.7.204}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.account.rule=PathPrefix(`/_accounts`)"
-      - "traefik.http.services.account.loadbalancer.server.port=3000"
     environment:
+      - SERVICE_FQDN_ACCOUNT_3000=/_accounts
       - SERVER_PORT=3000
       - SERVER_SECRET=${SECRET}
       - DB_URL=${CR_DB_URL}
@@ -138,11 +129,8 @@ services:
 
   transactor:
     image: hardcoreeng/transactor:${HULY_VERSION:-s0.7.204}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.transactor.rule=PathPrefix(`/_transactor`)"
-      - "traefik.http.services.transactor.loadbalancer.server.port=3333"
     environment:
+      - SERVICE_FQDN_TRANSACTOR_3333=/_transactor
       - SERVER_PORT=3333
       - SERVER_SECRET=${SECRET}
       - DB_URL=${CR_DB_URL}
@@ -157,11 +145,8 @@ services:
 
   collaborator:
     image: hardcoreeng/collaborator:${HULY_VERSION:-s0.7.204}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.collaborator.rule=PathPrefix(`/_collaborator`)"
-      - "traefik.http.services.collaborator.loadbalancer.server.port=3078"
     environment:
+      - SERVICE_FQDN_COLLABORATOR_3078=/_collaborator
       - COLLABORATOR_PORT=3078
       - SECRET=${SECRET}
       - ACCOUNTS_URL=http://account:3000
@@ -198,10 +183,6 @@ services:
 
   datalake:
     image: hardcoreeng/datalake:${HULY_VERSION:-s0.7.204}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.datalake.rule=PathPrefix(`/_datalake`)"
-      - "traefik.http.services.datalake.loadbalancer.server.port=4030"
     depends_on:
       minio:
         condition: service_healthy
@@ -212,6 +193,7 @@ services:
       account:
         condition: service_started
     environment:
+      - SERVICE_FQDN_DATALAKE_4030=/_datalake
       - PORT=4030
       - SECRET=${SECRET}
       - ACCOUNTS_URL=http://account:3000
