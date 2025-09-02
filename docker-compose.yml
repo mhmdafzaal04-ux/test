@@ -122,14 +122,6 @@ services:
       - ACCOUNTS_URL=http${SECURE:+s}://${HOST_ADDRESS}/_accounts
       - ACCOUNT_PORT=3000
       - QUEUE_CONFIG=redpanda:9092
-      # Optional configurations
-      - MAIL_URL=${MAIL_URL:-}
-      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID:-}
-      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET:-}
-      - OPENID_CLIENT_ID=${OPENID_CLIENT_ID:-}
-      - OPENID_CLIENT_SECRET=${OPENID_CLIENT_SECRET:-}
-      - OPENID_ISSUER=${OPENID_ISSUER:-}
-      - DISABLE_SIGNUP=${DISABLE_SIGNUP:-}
     restart: unless-stopped
 
   transactor:
@@ -145,10 +137,6 @@ services:
       - STATS_URL=http://stats:4900
       - LAST_NAME_FIRST=${LAST_NAME_FIRST:-true}
       - QUEUE_CONFIG=redpanda:9092
-      # Optional services
-      - MAIL_URL=${MAIL_URL:-}
-      - AI_BOT_URL=${AI_BOT_URL:-}
-      - WEB_PUSH_URL=${WEB_PUSH_URL:-}
     restart: unless-stopped
 
   collaborator:
@@ -233,12 +221,6 @@ services:
       - DEFAULT_LANGUAGE=${DEFAULT_LANGUAGE:-en}
       - LAST_NAME_FIRST=${LAST_NAME_FIRST:-true}
       - DESKTOP_UPDATES_CHANNEL=${HULY_VERSION:-s0.7.204}
-      # Optional features
-      - PUSH_PUBLIC_KEY=${PUSH_PUBLIC_KEY:-}
-      - AI_URL=${AI_URL:-}
-      - LIVEKIT_WS=${LIVEKIT_HOST:-}
-      - LOVE_ENDPOINT=${LOVE_ENDPOINT:-}
-      - DISABLE_SIGNUP=${DISABLE_SIGNUP:-}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/"]
