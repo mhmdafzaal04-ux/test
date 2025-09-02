@@ -201,8 +201,6 @@ services:
   # NGINX PROXY - This is what Coolify will expose
   nginx:
     image: nginx:alpine
-    ports:
-      - "80:80"
     command: |
       /bin/sh -c "
       cat > /etc/nginx/conf.d/default.conf << 'EOF'
