@@ -93,6 +93,12 @@ services:
 
   rekoni:
     image: hardcoreeng/rekoni-service:${HULY_VERSION:-s0.7.204}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rekoni.rule=PathPrefix(`/_rekoni`)"
+      - "traefik.http.services.rekoni.loadbalancer.server.port=4004"
+      - "traefik.http.middlewares.rekoni-strip.stripprefix.prefixes=/_rekoni"
+      - "traefik.http.routers.rekoni.middlewares=rekoni-strip"
     environment:
       - SECRET=${SECRET}
     deploy:
@@ -103,6 +109,12 @@ services:
 
   stats:
     image: hardcoreeng/stats:${HULY_VERSION:-s0.7.204}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.stats.rule=PathPrefix(`/_stats`)"
+      - "traefik.http.services.stats.loadbalancer.server.port=4900"
+      - "traefik.http.middlewares.stats-strip.stripprefix.prefixes=/_stats"
+      - "traefik.http.routers.stats.middlewares=stats-strip"
     environment:
       - PORT=4900
       - SERVER_SECRET=${SECRET}
@@ -110,6 +122,12 @@ services:
 
   account:
     image: hardcoreeng/account:${HULY_VERSION:-s0.7.204}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.account.rule=PathPrefix(`/_accounts`)"
+      - "traefik.http.services.account.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.account-strip.stripprefix.prefixes=/_accounts"
+      - "traefik.http.routers.account.middlewares=account-strip"
     environment:
       - SERVER_PORT=3000
       - SERVER_SECRET=${SECRET}
@@ -126,6 +144,10 @@ services:
 
   transactor:
     image: hardcoreeng/transactor:${HULY_VERSION:-s0.7.204}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.transactor.rule=PathPrefix(`/_transactor`)"
+      - "traefik.http.services.transactor.loadbalancer.server.port=3333"
     environment:
       - SERVER_PORT=3333
       - SERVER_SECRET=${SECRET}
@@ -141,6 +163,10 @@ services:
 
   collaborator:
     image: hardcoreeng/collaborator:${HULY_VERSION:-s0.7.204}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.collaborator.rule=PathPrefix(`/_collaborator`)"
+      - "traefik.http.services.collaborator.loadbalancer.server.port=3078"
     environment:
       - COLLABORATOR_PORT=3078
       - SECRET=${SECRET}
@@ -178,6 +204,12 @@ services:
 
   datalake:
     image: hardcoreeng/datalake:${HULY_VERSION:-s0.7.204}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.datalake.rule=PathPrefix(`/_datalake`)"
+      - "traefik.http.services.datalake.loadbalancer.server.port=4030"
+      - "traefik.http.middlewares.datalake-strip.stripprefix.prefixes=/_datalake"
+      - "traefik.http.routers.datalake.middlewares=datalake-strip"
     depends_on:
       minio:
         condition: service_healthy
