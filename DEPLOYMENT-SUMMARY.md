@@ -1,8 +1,15 @@
 # Huly Self-Hosted Deployment Summary
 
-## 🎉 Deployment Status: Ready!
+## 🎉 Deployment Status: ✅ WORKING!
 
-Your Huly self-hosted setup is now complete and ready for both local development and production deployment on OVHcloud with Coolify.
+**Updated:** September 2, 2025  
+Your Huly self-hosted setup is COMPLETE and WORKING on both local and Coolify!
+
+### Current Status
+- **Local:** ✅ Working at http://localhost:8087
+- **Production:** ✅ Working at http://qcocg8gksockw0wgocsggk4o.162.19.253.34.sslip.io
+- **Features:** Signup, workspace creation, core functionality working
+- **Next:** See DEPLOYMENT-CHECKPOINT.md for production features TODO
 
 ## 📋 What Has Been Completed
 
