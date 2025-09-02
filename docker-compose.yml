@@ -1,7 +1,8 @@
-# Huly Self-Hosted - GitHub Repository Version
-# Optimized for Coolify deployment from GitHub
+# Huly Self-Hosted - Complete Production Setup
+# Optimized for Coolify deployment from GitHub with nginx proxy
 # 
-# This file is designed to be deployed via Coolify using GitHub as source
+# This file includes nginx service for proper path-based routing
+# Required for /_accounts, /_stats, /_datalake routing to backend services
 # All sensitive configuration is handled via Coolify environment variables
 
 name: huly_production
@@ -95,7 +96,6 @@ services:
     image: hardcoreeng/rekoni-service:${HULY_VERSION:-s0.7.204}
     environment:
       - SECRET=${SECRET}
-      - SERVICE_FQDN_REKONI_4004=/_rekoni
     deploy:
       resources:
         limits:
@@ -107,13 +107,11 @@ services:
     environment:
       - PORT=4900
       - SERVER_SECRET=${SECRET}
-      - SERVICE_FQDN_STATS_4900=/_stats
     restart: unless-stopped
 
   account:
     image: hardcoreeng/account:${HULY_VERSION:-s0.7.204}
     environment:
-      - SERVICE_FQDN_ACCOUNT_3000=/_accounts
       - SERVER_PORT=3000
       - SERVER_SECRET=${SECRET}
       - DB_URL=${CR_DB_URL}
@@ -130,7 +128,6 @@ services:
   transactor:
     image: hardcoreeng/transactor:${HULY_VERSION:-s0.7.204}
     environment:
-      - SERVICE_FQDN_TRANSACTOR_3333=/_transactor
       - SERVER_PORT=3333
       - SERVER_SECRET=${SECRET}
       - DB_URL=${CR_DB_URL}
@@ -146,7 +143,6 @@ services:
   collaborator:
     image: hardcoreeng/collaborator:${HULY_VERSION:-s0.7.204}
     environment:
-      - SERVICE_FQDN_COLLABORATOR_3078=/_collaborator
       - COLLABORATOR_PORT=3078
       - SECRET=${SECRET}
       - ACCOUNTS_URL=http://account:3000
@@ -193,7 +189,6 @@ services:
       account:
         condition: service_started
     environment:
-      - SERVICE_FQDN_DATALAKE_4030=/_datalake
       - PORT=4030
       - SECRET=${SECRET}
       - ACCOUNTS_URL=http://account:3000
@@ -203,7 +198,118 @@ services:
       - QUEUE_CONFIG=redpanda:9092
     restart: unless-stopped
 
-  # MAIN SERVICE - This is what Coolify will expose
+  # NGINX PROXY - This is what Coolify will expose
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    command: |
+      /bin/sh -c "
+      cat > /etc/nginx/conf.d/default.conf << 'EOF'
+      server {
+          listen 80;
+          server_name _;
+          client_max_body_size 100M;
+
+          location / {
+              proxy_set_header Host \$$host;
+              proxy_set_header X-Real-IP \$$remote_addr;
+              proxy_set_header X-Forwarded-For \$$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto \$$scheme;
+              proxy_pass http://front:8080;
+          }
+
+          location /_accounts {
+              proxy_set_header Host \$$host;
+              proxy_set_header X-Real-IP \$$remote_addr;
+              proxy_set_header X-Forwarded-For \$$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto \$$scheme;
+
+              rewrite ^/_accounts(/.*)$$ \$$1 break;
+              proxy_pass http://account:3000/;
+          }
+
+          location /_collaborator {
+              proxy_set_header Host \$$host;
+              proxy_set_header X-Real-IP \$$remote_addr;
+              proxy_set_header X-Forwarded-For \$$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto \$$scheme;
+
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade \$$http_upgrade;
+              proxy_set_header Connection \"upgrade\";
+              rewrite ^/_collaborator(/.*)$$ \$$1 break;
+              proxy_pass http://collaborator:3078/;
+          }
+
+          location /_transactor {
+              proxy_set_header Host \$$host;
+              proxy_set_header X-Real-IP \$$remote_addr;
+              proxy_set_header X-Forwarded-For \$$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto \$$scheme;
+              
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade \$$http_upgrade;
+              proxy_set_header Connection \"upgrade\";
+              rewrite ^/_transactor(/.*)$$ \$$1 break;
+              proxy_pass http://transactor:3333/;
+          }
+
+          location ~ ^/eyJ {
+              proxy_set_header Host \$$host;
+              proxy_set_header X-Real-IP \$$remote_addr;
+              proxy_set_header X-Forwarded-For \$$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto \$$scheme;
+              
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade \$$http_upgrade;
+              proxy_set_header Connection \"upgrade\";
+              proxy_pass http://transactor:3333;
+          }
+
+          location /_rekoni {
+              proxy_set_header Host \$$host;
+              proxy_set_header X-Real-IP \$$remote_addr;
+              proxy_set_header X-Forwarded-For \$$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto \$$scheme;
+
+              rewrite ^/_rekoni(/.*)$$ \$$1 break;
+              proxy_pass http://rekoni:4004/;
+          }
+
+          location /_stats {
+              proxy_set_header Host \$$host;
+              proxy_set_header X-Real-IP \$$remote_addr;
+              proxy_set_header X-Forwarded-For \$$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto \$$scheme;
+
+              rewrite ^/_stats(/.*)$$ \$$1 break;
+              proxy_pass http://stats:4900/;
+          }
+
+          location /_datalake {
+              proxy_set_header Host \$$host;
+              proxy_set_header X-Real-IP \$$remote_addr;
+              proxy_set_header X-Forwarded-For \$$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto \$$scheme;
+
+              rewrite ^/_datalake(/.*)$$ \$$1 break;
+              proxy_pass http://datalake:4030/;
+          }
+      }
+      EOF
+      nginx -g 'daemon off;'
+      "
+    restart: unless-stopped
+    depends_on:
+      - front
+      - account
+      - stats
+      - transactor
+      - collaborator
+      - rekoni
+      - datalake
+
   front:
     image: hardcoreeng/front:${HULY_VERSION:-s0.7.204}
     environment:
